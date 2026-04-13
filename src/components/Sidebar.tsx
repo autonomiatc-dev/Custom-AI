@@ -1,7 +1,7 @@
 import { Conversation } from '../types';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
-import { Plus, MessageSquare, Trash2 } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, Key } from 'lucide-react';
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -9,9 +9,10 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onNewChat: () => void;
   onDelete: (id: string) => void;
+  onChangeApiKey: () => void;
 }
 
-export function Sidebar({ conversations, activeId, onSelect, onNewChat, onDelete }: SidebarProps) {
+export function Sidebar({ conversations, activeId, onSelect, onNewChat, onDelete, onChangeApiKey }: SidebarProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-4">
@@ -54,6 +55,12 @@ export function Sidebar({ conversations, activeId, onSelect, onNewChat, onDelete
           ))}
         </div>
       </ScrollArea>
+      <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
+        <Button variant="ghost" className="w-full justify-start gap-2 text-zinc-600 dark:text-zinc-400" onClick={onChangeApiKey}>
+          <Key className="h-4 w-4" />
+          Configurar API Key
+        </Button>
+      </div>
     </div>
   );
 }

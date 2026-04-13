@@ -8,9 +8,10 @@ import { useConversations } from './hooks/useConversations';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { NewChatSettings } from './components/NewChatSettings';
-import { Menu } from 'lucide-react';
+import { Menu, Key } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Sheet, SheetContent } from './components/ui/sheet';
+import { Input } from './components/ui/input';
 
 export default function App() {
   const {
@@ -25,6 +26,63 @@ export default function App() {
   } = useConversations();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // API Key State
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('custom_ai_api_key') || '');
+  const [isEditingKey, setIsEditingKey] = useState(!localStorage.getItem('custom_ai_api_key'));
+  const [tempKey, setTempKey] = useState(apiKey);
+
+  const handleSaveKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (tempKey.trim()) {
+      localStorage.setItem('custom_ai_api_key', tempKey.trim());
+      setApiKey(tempKey.trim());
+      setIsEditingKey(false);
+    }
+  };
+
+  if (isEditingKey || !apiKey) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 p-4">
+        <div className="max-w-md w-full p-8 bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center mb-6">
+            <Key className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Configurar API Key</h2>
+          <p className="text-zinc-600 dark:text-zinc-400 mb-6 text-sm leading-relaxed">
+            Para usar o Custom AI, insira sua chave de API do Google Gemini. Ela ficará salva <strong>apenas localmente no seu navegador</strong>.
+          </p>
+          <form onSubmit={handleSaveKey} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="password"
+                value={tempKey}
+                onChange={(e) => setTempKey(e.target.value)}
+                placeholder="Cole sua API Key aqui..."
+                className="py-6"
+              />
+            </div>
+            <Button type="submit" className="w-full py-6 text-base" disabled={!tempKey.trim()}>
+              Salvar e Continuar
+            </Button>
+            {apiKey && (
+              <Button type="button" variant="ghost" className="w-full" onClick={() => {
+                setTempKey(apiKey);
+                setIsEditingKey(false);
+              }}>
+                Cancelar
+              </Button>
+            )}
+          </form>
+          <div className="mt-6 text-center">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+              Não tem uma chave? Obtenha uma no Google AI Studio
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-hidden">
@@ -36,6 +94,10 @@ export default function App() {
           onSelect={(id) => setActiveId(id)} 
           onNewChat={() => setActiveId(null)}
           onDelete={deleteConversation}
+          onChangeApiKey={() => {
+            setTempKey(apiKey);
+            setIsEditingKey(true);
+          }}
         />
       </div>
 
@@ -54,6 +116,11 @@ export default function App() {
               setIsSidebarOpen(false);
             }}
             onDelete={deleteConversation}
+            onChangeApiKey={() => {
+              setTempKey(apiKey);
+              setIsEditingKey(true);
+              setIsSidebarOpen(false);
+            }}
           />
         </SheetContent>
       </Sheet>
@@ -71,6 +138,7 @@ export default function App() {
           {activeConversation ? (
             <ChatArea 
               conversation={activeConversation} 
+              apiKey={apiKey}
               onSendMessage={addMessage}
               onUpdateConversation={updateConversation}
             />

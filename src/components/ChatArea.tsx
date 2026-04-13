@@ -10,11 +10,12 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 interface ChatAreaProps {
   conversation: Conversation;
+  apiKey: string;
   onSendMessage: (conversationId: string, message: Omit<Message, 'id' | 'createdAt'>) => void;
   onUpdateConversation: (id: string, updates: Partial<Conversation>) => void;
 }
 
-export function ChatArea({ conversation, onSendMessage, onUpdateConversation }: ChatAreaProps) {
+export function ChatArea({ conversation, apiKey, onSendMessage, onUpdateConversation }: ChatAreaProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -30,12 +31,12 @@ export function ChatArea({ conversation, onSendMessage, onUpdateConversation }: 
     if (conversation.messages.length === 2 && conversation.title === 'Nova Conversa') {
       const firstUserMsg = conversation.messages.find(m => m.role === 'user')?.text;
       if (firstUserMsg) {
-        generateTitle(conversation.systemPrompt, firstUserMsg).then(title => {
+        generateTitle(conversation.systemPrompt, firstUserMsg, apiKey).then(title => {
           onUpdateConversation(conversation.id, { title });
         });
       }
     }
-  }, [conversation.messages.length, conversation.id, conversation.title, conversation.systemPrompt, onUpdateConversation]);
+  }, [conversation.messages.length, conversation.id, conversation.title, conversation.systemPrompt, onUpdateConversation, apiKey]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +57,7 @@ export function ChatArea({ conversation, onSendMessage, onUpdateConversation }: 
         messages: [...conversation.messages, { role: 'user' as const, text: userText, id: 'temp', createdAt: Date.now() }]
       };
       
-      const responseText = await generateChatResponse(tempConv, userText);
+      const responseText = await generateChatResponse(tempConv, userText, apiKey);
       onSendMessage(conversation.id, { role: 'model', text: responseText });
     } catch (error) {
       console.error("Error generating response:", error);
