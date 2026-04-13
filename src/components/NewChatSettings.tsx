@@ -20,7 +20,7 @@ interface NewChatSettingsProps {
 }
 
 const MODELS = [
-  { id: 'gemini-3.1-flash-preview', name: 'Gemini 3.1 Flash (Rápido e versátil)' },
+  { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash (Rápido e versátil)' },
   { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Raciocínio complexo)' },
 ];
 

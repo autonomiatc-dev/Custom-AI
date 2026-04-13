@@ -8,13 +8,18 @@ export async function generateChatResponse(
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
   
+  // Fallback for old conversations that might have saved an invalid model name
+  const modelToUse = conversation.model === 'gemini-3.1-flash-preview' 
+    ? 'gemini-3-flash-preview' 
+    : conversation.model;
+  
   const chatHistory = conversation.messages.map(msg => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.text }]
   }));
 
   const chat = ai.chats.create({
-    model: conversation.model,
+    model: modelToUse,
     history: chatHistory,
     config: {
       systemInstruction: conversation.systemPrompt || undefined,
@@ -32,7 +37,7 @@ export async function generateTitle(systemPrompt: string, firstMessage: string, 
   try {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-preview",
+      model: "gemini-3-flash-preview",
       contents: `Generate a short, concise title (max 5 words) for a conversation that starts with this message: "${firstMessage}". The system prompt is: "${systemPrompt}". Return only the title, no quotes.`,
     });
     return response.text?.trim() || "Nova Conversa";
