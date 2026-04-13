@@ -1,0 +1,5 @@
+{
+  "name": "Custom AI",
+  "description": "Uma aplicação de conversas com IA onde você pode personalizar o prompt do sistema, modelo, temperatura e outras configurações para cada conversa.",
+  "requestFramePermissions": []
+}
